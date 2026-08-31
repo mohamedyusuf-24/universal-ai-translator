@@ -13,21 +13,23 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.lib.pagesizes import A4
 
--------------------------------------------------
-WINDOWS / LOCAL CONFIGURATION
--------------------------------------------------
+# -------------------------------------------------
+
+# WINDOWS / LOCAL CONFIGURATION
+
+# -------------------------------------------------
 
 TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 POPPLER_PATH = r"C:\poppler-26.02.0\Library\bin"
 
-Configure Tesseract only when the Windows path exists
-
 if os.path.exists(TESSERACT_PATH):
 pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
 
--------------------------------------------------
-STREAMLIT PAGE
--------------------------------------------------
+# -------------------------------------------------
+
+# STREAMLIT PAGE
+
+# -------------------------------------------------
 
 st.set_page_config(
 page_title="Universal AI Translator",
@@ -42,9 +44,11 @@ st.write(
 "translate it into another language, and download the result."
 )
 
--------------------------------------------------
-DETECT OCR LANGUAGES
--------------------------------------------------
+# -------------------------------------------------
+
+# DETECT OCR LANGUAGES
+
+# -------------------------------------------------
 
 @st.cache_data
 def get_installed_ocr_languages():
@@ -80,9 +84,11 @@ LANGUAGE_NAMES = {
 def language_label(code):
 return f"{LANGUAGE_NAMES.get(code, code)} ({code})"
 
--------------------------------------------------
-TRANSLATION LANGUAGES
--------------------------------------------------
+# -------------------------------------------------
+
+# TRANSLATION LANGUAGES
+
+# -------------------------------------------------
 
 available_langs = {
 "Afrikaans": "af",
@@ -118,13 +124,16 @@ available_langs = {
 "Vietnamese": "vi"
 }
 
--------------------------------------------------
-PDF FONT
--------------------------------------------------
+# -------------------------------------------------
+
+# PDF FONT
+
+# -------------------------------------------------
 
 def get_pdf_font(lang_code):
 font_name = "Helvetica"
 
+```
 if lang_code in ["zh-CN", "zh-TW"]:
     font_name = "STSong-Light"
 
@@ -143,13 +152,18 @@ if font_name != "Helvetica":
         pass
 
 return font_name
--------------------------------------------------
-CREATE PDF
--------------------------------------------------
+```
+
+# -------------------------------------------------
+
+# CREATE PDF
+
+# -------------------------------------------------
 
 def make_pdf(translated_pages, font_name):
 output = io.BytesIO()
 
+```
 document = SimpleDocTemplate(
     output,
     pagesize=A4
@@ -195,9 +209,13 @@ for page_number, text in enumerate(translated_pages, start=1):
 document.build(story)
 
 return output.getvalue()
--------------------------------------------------
-OCR LANGUAGE SELECTION
--------------------------------------------------
+```
+
+# -------------------------------------------------
+
+# OCR LANGUAGE SELECTION
+
+# -------------------------------------------------
 
 installed_ocr_languages = get_installed_ocr_languages()
 
@@ -219,9 +237,11 @@ index=default_index,
 format_func=language_label
 )
 
--------------------------------------------------
-TARGET LANGUAGE
--------------------------------------------------
+# -------------------------------------------------
+
+# TARGET LANGUAGE
+
+# -------------------------------------------------
 
 st.subheader("2️⃣ Select Translation Language")
 
@@ -232,9 +252,11 @@ sorted(available_langs.keys())
 
 target_code = available_langs[target_lang_name]
 
--------------------------------------------------
-FILE UPLOAD
--------------------------------------------------
+# -------------------------------------------------
+
+# FILE UPLOAD
+
+# -------------------------------------------------
 
 st.subheader("3️⃣ Upload File")
 
@@ -243,24 +265,27 @@ uploaded_file = st.file_uploader(
 type=["png", "jpg", "jpeg", "pdf"]
 )
 
--------------------------------------------------
-PROCESS FILE
--------------------------------------------------
+# -------------------------------------------------
+
+# PROCESS FILE
+
+# -------------------------------------------------
 
 if uploaded_file is not None:
 
+```
 try:
 
     with st.spinner("Reading and translating your file..."):
 
-        # Check whether the uploaded file is an image
         if "image" in uploaded_file.type:
+
             input_images = [
                 Image.open(uploaded_file)
             ]
 
-        # Otherwise, process it as a PDF
         else:
+
             pdf_kwargs = {}
 
             if os.path.exists(POPPLER_PATH):
@@ -278,13 +303,11 @@ try:
 
         for index, image in enumerate(input_images):
 
-            # OCR
             raw_text = pytesseract.image_to_string(
                 image,
                 lang=ocr_lang
             )
 
-            # Translation
             if raw_text.strip():
 
                 translated_text = GoogleTranslator(
@@ -293,11 +316,10 @@ try:
                 ).translate(raw_text)
 
             else:
+
                 translated_text = "No text detected."
 
-            translated_pages.append(
-                translated_text
-            )
+            translated_pages.append(translated_text)
 
             previews.append(
                 (
@@ -403,3 +425,4 @@ except Exception as error:
     )
 
     st.exception(error)
+```
